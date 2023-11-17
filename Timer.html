@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/babel-standalone/7.22.17/babel.min.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="text/babel" >
+        function useTimer(initialValue) {
+
+            const timerId = React.useRef(null)
+            const startNumber = React.useRef(initialValue)
+            const currentNumber = React.useRef(initialValue)
+
+            const [paused, setPaused] = React.useState(true)
+            const [timeFormatedString, setTimeFormatedString] = React.useState('倒计时:')
+
+            // React.useEffect(() => {
+            //     console.log(startNumber.current, 'ef');
+            //     currentNumber.current = startNumber.current
+            //     formatTimeString()
+            // }, [startNumber.current])
+            React.useEffect(() => {
+                formatTimeString()
+            }, [])
+            React.useEffect(() => {
+                if(!paused && timerId.current === null) {
+                    timerId.current = setInterval(() => {
+                        if(currentNumber.current > 0) {
+                            currentNumber.current--
+                            formatTimeString()
+                        }
+                        else {
+                            clearInterval(timerId.current)
+                            timerId.current = null
+                        }
+                    }, 1000)
+                }
+                else if(paused) {
+                    clearInterval(timerId.current)
+                    timerId.current = null
+                }
+            }, [paused])
+
+            function formatTimeString() {
+                const d = parseInt(currentNumber.current / (24 * 60 * 60) + '');
+                const h = parseInt(((currentNumber.current / (60 * 60)) % 24) + '');
+                const m = parseInt(((currentNumber.current / 60) % 60) + '');
+                const s = parseInt((currentNumber.current % 60) + '');
+                setTimeFormatedString(`倒计时: ${h}时${m}分${s}秒`);
+            }
+
+            function timerBegin() {
+                setPaused(false);
+            }
+
+            function timerStop() {
+                setPaused(true);
+            }
+
+            function restTimer() {
+                timerStop()
+                currentNumber.current = startNumber.current
+                formatTimeString()
+            }
+            
+            function setStartNumber(time) {
+                timerStop()
+                startNumber.current = time
+                currentNumber.current = startNumber.current
+                formatTimeString()
+            }
+
+            return {
+                timeFormatedString, paused, timerBegin, timerStop, restTimer, setStartNumber
+            }
+        }
+
+		function App(){
+
+            const selectedTime = React.useRef(0)
+
+            const { timeFormatedString, timerBegin, timerStop, restTimer, setStartNumber } = useTimer(0)
+
+            function handleSelectTime(value) {
+                const valueArr = value.split(":")
+                let totalTimestemp = 0
+                for(let i = 0; i <= 2; i++) {
+                    totalTimestemp += (+valueArr[i]) * (60 ** (2 - i))
+                    selectedTime.current = totalTimestemp
+                }
+                setStartNumber(totalTimestemp)
+            }
+
+			return (<>
+                <div className="input_area">
+                    <div>
+                        <label for="timeSelecter">选择时间：</label>
+                        <input type="time" step="1" name="timeSelecter" onBlur={(e) => handleSelectTime(e.target.value)} defaultValue="00:00:00"/>
+                    </div>
+                    <button style={{width: 80}} onClick={timerBegin}>开始计时</button>
+                    <button style={{width: 80}} onClick={timerStop}>停止计时</button>
+                    <button style={{width: 80}} onClick={() => restTimer()}>重置时间</button>
+                </div>
+                <div className="show_area">
+                    {timeFormatedString}
+                </div>
+            </>)
+		}
+
+        ReactDOM.render(<App/>,document.getElementById('app'))
+	</script>
+
+    <style>
+        .input_area {
+            margin: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input_area input {
+            margin-bottom: 20px;
+        }
+        
+        .show_area {
+            width: 100%;
+            height: 400px;
+            text-align: center;
+            line-height: 400px;
+            font-size: 80px;
+            border: 1px solid rgb(0, 217, 255);
+            color: blue;
+        }
+    </style>
+</body>
+</html>
