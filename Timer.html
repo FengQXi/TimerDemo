@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Timer</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/babel-standalone/7.22.17/babel.min.js"></script>
@@ -11,7 +11,8 @@
 <body>
     <div id="app"></div>
 
-    <script type="text/babel" >
+    <script type="text/babel">
+        // 自定义hook来处理计时的数据问题
         function useTimer(initialValue) {
 
             const timerId = React.useRef(null)
@@ -93,8 +94,8 @@
                 let totalTimestemp = 0
                 for(let i = 0; i <= 2; i++) {
                     totalTimestemp += (+valueArr[i]) * (60 ** (2 - i))
-                    selectedTime.current = totalTimestemp
                 }
+                selectedTime.current = totalTimestemp
                 setStartNumber(totalTimestemp)
             }
 
